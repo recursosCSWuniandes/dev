@@ -5,17 +5,19 @@
  */
 package co.edu.uniandes.csw.stamps.tests.selenium.pages;
 
+import static org.jboss.arquillian.graphene.Graphene.waitGui;
 import org.jboss.arquillian.drone.api.annotation.Drone;
+import org.jboss.arquillian.graphene.page.Location;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.FindBys;
 
 /**
  *
  * @author af.esguerra10
  */
+@Location("#/clients/list")
 public class ClientListPage {
 
     @Drone
@@ -27,19 +29,49 @@ public class ClientListPage {
     @FindBy(id = "refresh-client")
     private WebElement refreshBtn;
 
-    private WebElement findNameByIndex(int index) {
-        return browser.findElement(By.id(index + "-name"));
+    private String findNameByIndex(Integer index) {
+        return browser.findElement(By.id(index + "-name")).getText();
     }
 
-    private WebElement findDetailsBtnByIndex(int index) {
+    private WebElement findDetailsBtnByIndex(Integer index) {
         return browser.findElement(By.id(index + "-detail-btn"));
     }
 
-    private WebElement findEditBtnByIndex(int index) {
+    private WebElement findEditBtnByIndex(Integer index) {
         return browser.findElement(By.id(index + "-edit-btn"));
     }
 
-    private WebElement findDeleteBtnByIndex(int index) {
+    private WebElement findDeleteBtnByIndex(Integer index) {
         return browser.findElement(By.id(index + "-delete-btn"));
+    }
+
+    public void editClient(Integer index) {
+        WebElement editButton = findEditBtnByIndex(index);
+        waitGui().until().element(editButton).is().visible();
+        editButton.click();
+    }
+
+    public void deleteClient(Integer index) {
+        WebElement deleteButton = findDeleteBtnByIndex(index);
+        waitGui().until().element(deleteButton).is().visible();
+        deleteButton.click();
+    }
+
+    public void viewClientDetails(Integer index) {
+        WebElement detailsButton = findDetailsBtnByIndex(index);
+        waitGui().until().element(detailsButton).is().visible();
+        detailsButton.click();
+    }
+
+    public void refresh() {
+        refreshBtn.click();
+    }
+
+    public void create() {
+        createBtn.click();
+    }
+
+    public Integer countClients() {
+        return browser.findElements(By.cssSelector("tbody > tr")).size();
     }
 }
