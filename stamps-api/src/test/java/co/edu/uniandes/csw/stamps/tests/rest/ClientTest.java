@@ -21,14 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package co.edu.uniandes.csw.stamps.tests;
+package co.edu.uniandes.csw.stamps.tests.rest;
 
 import co.edu.uniandes.csw.auth.model.UserDTO;
 import co.edu.uniandes.csw.auth.security.JWT;
-import co.edu.uniandes.csw.stamps.entities.ItemEntity;
 import co.edu.uniandes.csw.stamps.entities.ClientEntity;
-import co.edu.uniandes.csw.stamps.dtos.minimum.ItemMinimumDTO;
-import co.edu.uniandes.csw.stamps.resources.ItemResource;
+import co.edu.uniandes.csw.stamps.dtos.minimum.ClientMinimumDTO;
+import co.edu.uniandes.csw.stamps.resources.ClientResource;
+import co.edu.uniandes.csw.stamps.tests.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -63,19 +63,17 @@ import uk.co.jemos.podam.api.PodamFactoryImpl;
 
 
 @RunWith(Arquillian.class)
-public class ItemTest {
+public class ClientTest {
 
     private final int Ok = Status.OK.getStatusCode();
     private final int Created = Status.CREATED.getStatusCode();
     private final int OkWithoutContent = Status.NO_CONTENT.getStatusCode();
-    private final String itemPath = "wishList";
-    private final static List<ItemEntity> oraculo = new ArrayList<>();
+    private final String clientPath = "clients";
+    private final static List<ClientEntity> oraculo = new ArrayList<>();
     private WebTarget target;
     private final String apiPath = Utils.apiPath;
     private final String username = Utils.username;
     private final String password = Utils.password;    
-    private final String clientPath = "clients";
-    ClientEntity fatherClientEntity;
 
     @ArquillianResource
     private URL deploymentURL;
@@ -88,7 +86,7 @@ public class ItemTest {
                         .importRuntimeDependencies().resolve()
                         .withTransitivity().asFile())
                 // Se agregan los compilados de los paquetes de servicios
-                .addPackage(ItemResource.class.getPackage())
+                .addPackage(ClientResource.class.getPackage())
                 // El archivo que contiene la configuracion a la base de datos.
                 .addAsResource("META-INF/persistence.xml", "META-INF/persistence.xml")
                 // El archivo beans.xml es necesario para injeccion de dependencias.
@@ -111,8 +109,7 @@ public class ItemTest {
 
     private void clearData() {
         
-        em.createQuery("delete from ItemEntity").executeUpdate();
-        em.createQuery("delete from ClientEntity").executeUpdate();
+        em.createQuery("delete from ClientEntity").executeUpdate();    
         oraculo.clear();
     }
 
@@ -123,16 +120,11 @@ public class ItemTest {
      */
     public void insertData() {
         PodamFactory factory = new PodamFactoryImpl();
-        fatherClientEntity = factory.manufacturePojo(ClientEntity.class);
-        fatherClientEntity.setId(1L);
-        em.persist(fatherClientEntity);
-        
         for (int i = 0; i < 3; i++) {            
-            ItemEntity item = factory.manufacturePojo(ItemEntity.class);
-            item.setId(i + 1L);
-            item.setClient(fatherClientEntity);
-            em.persist(item);
-            oraculo.add(item);
+            ClientEntity client = factory.manufacturePojo(ClientEntity.class);
+            client.setId(i + 1L);
+            em.persist(client);
+            oraculo.add(client);
         }
     }
 
@@ -183,106 +175,90 @@ public class ItemTest {
     }
 
     /**
-     * Prueba para crear un Item
+     * Prueba para crear un Client
      *
      * @generated
      */
     @Test
-    public void createItemTest() throws IOException {
+    public void createClientTest() throws IOException {
         PodamFactory factory = new PodamFactoryImpl();
-        ItemMinimumDTO item = factory.manufacturePojo(ItemMinimumDTO.class);
+        ClientMinimumDTO client = factory.manufacturePojo(ClientMinimumDTO.class);
         Cookie cookieSessionId = login(username, password);
-        Response response = target
-            .path(clientPath).path(fatherClientEntity.getId().toString())
-          .path(itemPath)
+        Response response = target.path(clientPath)
             .request().cookie(cookieSessionId)
-            .post(Entity.entity(item, MediaType.APPLICATION_JSON));
+            .post(Entity.entity(client, MediaType.APPLICATION_JSON));
         
-        ItemMinimumDTO  itemTest = (ItemMinimumDTO) response.readEntity(ItemMinimumDTO.class);
-        Assert.assertEquals(item.getName(), itemTest.getName());
-        Assert.assertEquals(item.getQty(), itemTest.getQty());
+        ClientMinimumDTO  clientTest = (ClientMinimumDTO) response.readEntity(ClientMinimumDTO.class);
+        Assert.assertEquals(client.getName(), clientTest.getName());
         Assert.assertEquals(Created, response.getStatus());
-        ItemEntity entity = em.find(ItemEntity.class, itemTest.getId());
+        ClientEntity entity = em.find(ClientEntity.class, clientTest.getId());
         Assert.assertNotNull(entity);
     }
 
     /**
-     * Prueba para consultar un Item
+     * Prueba para consultar un Client
      *
      * @generated
      */
     @Test
-    public void getItemByIdTest() {
+    public void getClientByIdTest() {
         Cookie cookieSessionId = login(username, password);
-        ItemMinimumDTO itemTest = target
-            .path(clientPath).path(fatherClientEntity.getId().toString())
-            .path(itemPath)
-            .path(oraculo.get(0).getId().toString())
-            .request().cookie(cookieSessionId).get(ItemMinimumDTO.class);
+        ClientMinimumDTO clientTest = target.path(clientPath)
+                .path(oraculo.get(0).getId().toString())
+                .request().cookie(cookieSessionId).get(ClientMinimumDTO.class);
         
-        Assert.assertEquals(itemTest.getId(), oraculo.get(0).getId());
-        Assert.assertEquals(itemTest.getName(), oraculo.get(0).getName());
-        Assert.assertEquals(itemTest.getQty(), oraculo.get(0).getQty());
+        Assert.assertEquals(clientTest.getId(), oraculo.get(0).getId());
+        Assert.assertEquals(clientTest.getName(), oraculo.get(0).getName());
     }
 
     /**
-     * Prueba para consultar la lista de Items
+     * Prueba para consultar la lista de Clients
      *
      * @generated
      */
     @Test
-    public void listItemTest() throws IOException {
+    public void listClientTest() throws IOException {
         Cookie cookieSessionId = login(username, password);
-        Response response = target
-            .path(clientPath).path(fatherClientEntity.getId().toString())
-            .path(itemPath)
-            .request().cookie(cookieSessionId).get();
+        Response response = target.path(clientPath)
+                .request().cookie(cookieSessionId).get();
         
-        String listItem = response.readEntity(String.class);
-        List<ItemMinimumDTO> listItemTest = new ObjectMapper().readValue(listItem, List.class);
+        String listClient = response.readEntity(String.class);
+        List<ClientMinimumDTO> listClientTest = new ObjectMapper().readValue(listClient, List.class);
         Assert.assertEquals(Ok, response.getStatus());
-        Assert.assertEquals(3, listItemTest.size());
+        Assert.assertEquals(3, listClientTest.size());
     }
 
     /**
-     * Prueba para actualizar un Item
+     * Prueba para actualizar un Client
      *
      * @generated
      */
     @Test
-    public void updateItemTest() throws IOException {
+    public void updateClientTest() throws IOException {
         Cookie cookieSessionId = login(username, password);
-        ItemMinimumDTO item = new ItemMinimumDTO(oraculo.get(0));
+        ClientMinimumDTO client = new ClientMinimumDTO(oraculo.get(0));
         PodamFactory factory = new PodamFactoryImpl();
-        ItemMinimumDTO itemChanged = factory.manufacturePojo(ItemMinimumDTO.class);
-        item.setName(itemChanged.getName());
-        item.setQty(itemChanged.getQty());
-        Response response = target
-            .path(clientPath).path(fatherClientEntity.getId().toString())
-          .path(itemPath)
-            .path(item.getId().toString())
-            .request().cookie(cookieSessionId).put(Entity.entity(item, MediaType.APPLICATION_JSON));
+        ClientMinimumDTO clientChanged = factory.manufacturePojo(ClientMinimumDTO.class);
+        client.setName(clientChanged.getName());
+        Response response = target.path(clientPath).path(client.getId().toString())
+                .request().cookie(cookieSessionId).put(Entity.entity(client, MediaType.APPLICATION_JSON));
         
-        ItemMinimumDTO itemTest = (ItemMinimumDTO) response.readEntity(ItemMinimumDTO.class);
+        ClientMinimumDTO clientTest = (ClientMinimumDTO) response.readEntity(ClientMinimumDTO.class);
         Assert.assertEquals(Ok, response.getStatus());
-        Assert.assertEquals(item.getName(), itemTest.getName());
-        Assert.assertEquals(item.getQty(), itemTest.getQty());
+        Assert.assertEquals(client.getName(), clientTest.getName());
     }
     
     /**
-     * Prueba para eliminar un Item
+     * Prueba para eliminar un Client
      *
      * @generated
      */
     @Test
-    public void deleteItemTest() {
+    public void deleteClientTest() {
         Cookie cookieSessionId = login(username, password);
-        ItemMinimumDTO item = new ItemMinimumDTO(oraculo.get(0));
-        Response response = target
-            .path(clientPath).path(fatherClientEntity.getId().toString())
-            .path(itemPath)
-            .path(item.getId().toString())
-            .request().cookie(cookieSessionId).delete();
+        ClientMinimumDTO client = new ClientMinimumDTO(oraculo.get(0));
+        Response response = target.path(clientPath).path(client.getId().toString())
+                .request().cookie(cookieSessionId).delete();
         
         Assert.assertEquals(OkWithoutContent, response.getStatus());
     }

@@ -21,13 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package co.edu.uniandes.csw.stamps.tests;
+package co.edu.uniandes.csw.stamps.tests.rest;
 
 import co.edu.uniandes.csw.auth.model.UserDTO;
 import co.edu.uniandes.csw.auth.security.JWT;
-import co.edu.uniandes.csw.stamps.entities.TShirtEntity;
-import co.edu.uniandes.csw.stamps.dtos.minimum.TShirtMinimumDTO;
-import co.edu.uniandes.csw.stamps.resources.TShirtResource;
+import co.edu.uniandes.csw.stamps.entities.CategoryEntity;
+import co.edu.uniandes.csw.stamps.dtos.minimum.CategoryMinimumDTO;
+import co.edu.uniandes.csw.stamps.resources.CategoryResource;
+import co.edu.uniandes.csw.stamps.tests.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -47,14 +48,12 @@ import javax.ws.rs.core.Response.Status;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import uk.co.jemos.podam.api.PodamFactory;
@@ -62,13 +61,13 @@ import uk.co.jemos.podam.api.PodamFactoryImpl;
 
 
 @RunWith(Arquillian.class)
-public class TShirtTest {
+public class CategoryTest {
 
     private final int Ok = Status.OK.getStatusCode();
     private final int Created = Status.CREATED.getStatusCode();
     private final int OkWithoutContent = Status.NO_CONTENT.getStatusCode();
-    private final String tShirtPath = "tShirts";
-    private final static List<TShirtEntity> oraculo = new ArrayList<>();
+    private final String categoryPath = "categorys";
+    private final static List<CategoryEntity> oraculo = new ArrayList<>();
     private WebTarget target;
     private final String apiPath = Utils.apiPath;
     private final String username = Utils.username;
@@ -85,7 +84,7 @@ public class TShirtTest {
                         .importRuntimeDependencies().resolve()
                         .withTransitivity().asFile())
                 // Se agregan los compilados de los paquetes de servicios
-                .addPackage(TShirtResource.class.getPackage())
+                .addPackage(CategoryResource.class.getPackage())
                 // El archivo que contiene la configuracion a la base de datos.
                 .addAsResource("META-INF/persistence.xml", "META-INF/persistence.xml")
                 // El archivo beans.xml es necesario para injeccion de dependencias.
@@ -108,7 +107,7 @@ public class TShirtTest {
 
     private void clearData() {
         
-        em.createQuery("delete from TShirtEntity").executeUpdate();    
+        em.createQuery("delete from CategoryEntity").executeUpdate();    
         oraculo.clear();
     }
 
@@ -120,10 +119,10 @@ public class TShirtTest {
     public void insertData() {
         PodamFactory factory = new PodamFactoryImpl();
         for (int i = 0; i < 3; i++) {            
-            TShirtEntity tShirt = factory.manufacturePojo(TShirtEntity.class);
-            tShirt.setId(i + 1L);
-            em.persist(tShirt);
-            oraculo.add(tShirt);
+            CategoryEntity category = factory.manufacturePojo(CategoryEntity.class);
+            category.setId(i + 1L);
+            em.persist(category);
+            oraculo.add(category);
         }
     }
 
@@ -174,101 +173,89 @@ public class TShirtTest {
     }
 
     /**
-     * Prueba para crear un TShirt
+     * Prueba para crear un Category
      *
      * @generated
      */
     @Test
-    public void createTShirtTest() throws IOException {
+    public void createCategoryTest() throws IOException {
         PodamFactory factory = new PodamFactoryImpl();
-        TShirtMinimumDTO tShirt = factory.manufacturePojo(TShirtMinimumDTO.class);
+        CategoryMinimumDTO category = factory.manufacturePojo(CategoryMinimumDTO.class);
         Cookie cookieSessionId = login(username, password);
-        Response response = target.path(tShirtPath)
+        Response response = target.path(categoryPath)
             .request().cookie(cookieSessionId)
-            .post(Entity.entity(tShirt, MediaType.APPLICATION_JSON));
+            .post(Entity.entity(category, MediaType.APPLICATION_JSON));
         
-        TShirtMinimumDTO  tshirtTest = (TShirtMinimumDTO) response.readEntity(TShirtMinimumDTO.class);
-        Assert.assertEquals(tShirt.getName(), tshirtTest.getName());
-        Assert.assertEquals(tShirt.getSize(), tshirtTest.getSize());
-        Assert.assertEquals(tShirt.getColor(), tshirtTest.getColor());
-        Assert.assertEquals(tShirt.getPrice(), tshirtTest.getPrice());
+        CategoryMinimumDTO  categoryTest = (CategoryMinimumDTO) response.readEntity(CategoryMinimumDTO.class);
+        Assert.assertEquals(category.getName(), categoryTest.getName());
         Assert.assertEquals(Created, response.getStatus());
-        TShirtEntity entity = em.find(TShirtEntity.class, tshirtTest.getId());
+        CategoryEntity entity = em.find(CategoryEntity.class, categoryTest.getId());
         Assert.assertNotNull(entity);
     }
 
     /**
-     * Prueba para consultar un TShirt
+     * Prueba para consultar un Category
      *
      * @generated
      */
     @Test
-    public void getTShirtByIdTest() {
+    public void getCategoryByIdTest() {
         Cookie cookieSessionId = login(username, password);
-        TShirtMinimumDTO tshirtTest = target.path(tShirtPath)
+        CategoryMinimumDTO categoryTest = target.path(categoryPath)
                 .path(oraculo.get(0).getId().toString())
-                .request().cookie(cookieSessionId).get(TShirtMinimumDTO.class);
+                .request().cookie(cookieSessionId).get(CategoryMinimumDTO.class);
         
-        Assert.assertEquals(tshirtTest.getId(), oraculo.get(0).getId());
-        Assert.assertEquals(tshirtTest.getName(), oraculo.get(0).getName());
-        Assert.assertEquals(tshirtTest.getSize(), oraculo.get(0).getSize());
-        Assert.assertEquals(tshirtTest.getColor(), oraculo.get(0).getColor());
-        Assert.assertEquals(tshirtTest.getPrice(), oraculo.get(0).getPrice());
+        Assert.assertEquals(categoryTest.getId(), oraculo.get(0).getId());
+        Assert.assertEquals(categoryTest.getName(), oraculo.get(0).getName());
     }
 
     /**
-     * Prueba para consultar la lista de TShirts
+     * Prueba para consultar la lista de Categorys
      *
      * @generated
      */
     @Test
-    public void listTShirtTest() throws IOException {
+    public void listCategoryTest() throws IOException {
         Cookie cookieSessionId = login(username, password);
-        Response response = target.path(tShirtPath)
+        Response response = target.path(categoryPath)
                 .request().cookie(cookieSessionId).get();
         
-        String listTShirt = response.readEntity(String.class);
-        List<TShirtMinimumDTO> listTShirtTest = new ObjectMapper().readValue(listTShirt, List.class);
+        String listCategory = response.readEntity(String.class);
+        List<CategoryMinimumDTO> listCategoryTest = new ObjectMapper().readValue(listCategory, List.class);
         Assert.assertEquals(Ok, response.getStatus());
-        Assert.assertEquals(3, listTShirtTest.size());
+        Assert.assertEquals(3, listCategoryTest.size());
     }
 
     /**
-     * Prueba para actualizar un TShirt
+     * Prueba para actualizar un Category
      *
      * @generated
      */
     @Test
-    public void updateTShirtTest() throws IOException {
+    public void updateCategoryTest() throws IOException {
         Cookie cookieSessionId = login(username, password);
-        TShirtMinimumDTO tShirt = new TShirtMinimumDTO(oraculo.get(0));
+        CategoryMinimumDTO category = new CategoryMinimumDTO(oraculo.get(0));
         PodamFactory factory = new PodamFactoryImpl();
-        TShirtMinimumDTO tShirtChanged = factory.manufacturePojo(TShirtMinimumDTO.class);
-        tShirt.setName(tShirtChanged.getName());
-        tShirt.setSize(tShirtChanged.getSize());
-        tShirt.setColor(tShirtChanged.getColor());
-        tShirt.setPrice(tShirtChanged.getPrice());
-        Response response = target.path(tShirtPath).path(tShirt.getId().toString())
-                .request().cookie(cookieSessionId).put(Entity.entity(tShirt, MediaType.APPLICATION_JSON));
+        CategoryMinimumDTO categoryChanged = factory.manufacturePojo(CategoryMinimumDTO.class);
+        category.setName(categoryChanged.getName());
+        Response response = target.path(categoryPath).path(category.getId().toString())
+                .request().cookie(cookieSessionId).put(Entity.entity(category, MediaType.APPLICATION_JSON));
         
-        TShirtMinimumDTO tshirtTest = (TShirtMinimumDTO) response.readEntity(TShirtMinimumDTO.class);
+        CategoryMinimumDTO categoryTest = (CategoryMinimumDTO) response.readEntity(CategoryMinimumDTO.class);
         Assert.assertEquals(Ok, response.getStatus());
-        Assert.assertEquals(tShirt.getName(), tshirtTest.getName());
-        Assert.assertEquals(tShirt.getSize(), tshirtTest.getSize());
-        Assert.assertEquals(tShirt.getColor(), tshirtTest.getColor());
-        Assert.assertEquals(tShirt.getPrice(), tshirtTest.getPrice());
+        Assert.assertEquals(category.getName(), categoryTest.getName());
     }
     
     /**
-     * Prueba para eliminar un TShirt
+     * Prueba para eliminar un Category
      *
      * @generated
      */
     @Test
-    public void deleteTShirtTest() {
+    public void deleteCategoryTest() {
         Cookie cookieSessionId = login(username, password);
-        TShirtMinimumDTO tShirt = new TShirtMinimumDTO(oraculo.get(0));
-        Response response = target.path(tShirtPath).path(tShirt.getId().toString())
+        CategoryMinimumDTO category = new CategoryMinimumDTO(oraculo.get(0));
+        Response response = target.path(categoryPath).path(category.getId().toString())
                 .request().cookie(cookieSessionId).delete();
         
         Assert.assertEquals(OkWithoutContent, response.getStatus());

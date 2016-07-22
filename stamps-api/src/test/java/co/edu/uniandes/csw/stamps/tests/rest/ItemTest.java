@@ -21,14 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package co.edu.uniandes.csw.stamps.tests;
+package co.edu.uniandes.csw.stamps.tests.rest;
 
 import co.edu.uniandes.csw.auth.model.UserDTO;
 import co.edu.uniandes.csw.auth.security.JWT;
-import co.edu.uniandes.csw.stamps.entities.StampEntity;
-import co.edu.uniandes.csw.stamps.entities.ArtistEntity;
-import co.edu.uniandes.csw.stamps.dtos.minimum.StampMinimumDTO;
-import co.edu.uniandes.csw.stamps.resources.StampResource;
+import co.edu.uniandes.csw.stamps.entities.ItemEntity;
+import co.edu.uniandes.csw.stamps.entities.ClientEntity;
+import co.edu.uniandes.csw.stamps.dtos.minimum.ItemMinimumDTO;
+import co.edu.uniandes.csw.stamps.resources.ItemResource;
+import co.edu.uniandes.csw.stamps.tests.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -63,19 +64,19 @@ import uk.co.jemos.podam.api.PodamFactoryImpl;
 
 
 @RunWith(Arquillian.class)
-public class StampTest {
+public class ItemTest {
 
     private final int Ok = Status.OK.getStatusCode();
     private final int Created = Status.CREATED.getStatusCode();
     private final int OkWithoutContent = Status.NO_CONTENT.getStatusCode();
-    private final String stampPath = "stamps";
-    private final static List<StampEntity> oraculo = new ArrayList<>();
+    private final String itemPath = "wishList";
+    private final static List<ItemEntity> oraculo = new ArrayList<>();
     private WebTarget target;
     private final String apiPath = Utils.apiPath;
     private final String username = Utils.username;
     private final String password = Utils.password;    
-    private final String artistPath = "artists";
-    ArtistEntity fatherArtistEntity;
+    private final String clientPath = "clients";
+    ClientEntity fatherClientEntity;
 
     @ArquillianResource
     private URL deploymentURL;
@@ -88,7 +89,7 @@ public class StampTest {
                         .importRuntimeDependencies().resolve()
                         .withTransitivity().asFile())
                 // Se agregan los compilados de los paquetes de servicios
-                .addPackage(StampResource.class.getPackage())
+                .addPackage(ItemResource.class.getPackage())
                 // El archivo que contiene la configuracion a la base de datos.
                 .addAsResource("META-INF/persistence.xml", "META-INF/persistence.xml")
                 // El archivo beans.xml es necesario para injeccion de dependencias.
@@ -111,8 +112,8 @@ public class StampTest {
 
     private void clearData() {
         
-        em.createQuery("delete from StampEntity").executeUpdate();
-        em.createQuery("delete from ArtistEntity").executeUpdate();
+        em.createQuery("delete from ItemEntity").executeUpdate();
+        em.createQuery("delete from ClientEntity").executeUpdate();
         oraculo.clear();
     }
 
@@ -123,16 +124,16 @@ public class StampTest {
      */
     public void insertData() {
         PodamFactory factory = new PodamFactoryImpl();
-        fatherArtistEntity = factory.manufacturePojo(ArtistEntity.class);
-        fatherArtistEntity.setId(1L);
-        em.persist(fatherArtistEntity);
+        fatherClientEntity = factory.manufacturePojo(ClientEntity.class);
+        fatherClientEntity.setId(1L);
+        em.persist(fatherClientEntity);
         
         for (int i = 0; i < 3; i++) {            
-            StampEntity stamp = factory.manufacturePojo(StampEntity.class);
-            stamp.setId(i + 1L);
-            stamp.setArtist(fatherArtistEntity);
-            em.persist(stamp);
-            oraculo.add(stamp);
+            ItemEntity item = factory.manufacturePojo(ItemEntity.class);
+            item.setId(i + 1L);
+            item.setClient(fatherClientEntity);
+            em.persist(item);
+            oraculo.add(item);
         }
     }
 
@@ -183,109 +184,105 @@ public class StampTest {
     }
 
     /**
-     * Prueba para crear un Stamp
+     * Prueba para crear un Item
      *
      * @generated
      */
     @Test
-    public void createStampTest() throws IOException {
+    public void createItemTest() throws IOException {
         PodamFactory factory = new PodamFactoryImpl();
-        StampMinimumDTO stamp = factory.manufacturePojo(StampMinimumDTO.class);
+        ItemMinimumDTO item = factory.manufacturePojo(ItemMinimumDTO.class);
         Cookie cookieSessionId = login(username, password);
         Response response = target
-            .path(artistPath).path(fatherArtistEntity.getId().toString())
-          .path(stampPath)
+            .path(clientPath).path(fatherClientEntity.getId().toString())
+          .path(itemPath)
             .request().cookie(cookieSessionId)
-            .post(Entity.entity(stamp, MediaType.APPLICATION_JSON));
+            .post(Entity.entity(item, MediaType.APPLICATION_JSON));
         
-        StampMinimumDTO  stampTest = (StampMinimumDTO) response.readEntity(StampMinimumDTO.class);
-        Assert.assertEquals(stamp.getName(), stampTest.getName());
-        Assert.assertEquals(stamp.getImage(), stampTest.getImage());
-        Assert.assertEquals(stamp.getPrice(), stampTest.getPrice());
+        ItemMinimumDTO  itemTest = (ItemMinimumDTO) response.readEntity(ItemMinimumDTO.class);
+        Assert.assertEquals(item.getName(), itemTest.getName());
+        Assert.assertEquals(item.getQty(), itemTest.getQty());
         Assert.assertEquals(Created, response.getStatus());
-        StampEntity entity = em.find(StampEntity.class, stampTest.getId());
+        ItemEntity entity = em.find(ItemEntity.class, itemTest.getId());
         Assert.assertNotNull(entity);
     }
 
     /**
-     * Prueba para consultar un Stamp
+     * Prueba para consultar un Item
      *
      * @generated
      */
     @Test
-    public void getStampByIdTest() {
+    public void getItemByIdTest() {
         Cookie cookieSessionId = login(username, password);
-        StampMinimumDTO stampTest = target
-            .path(artistPath).path(fatherArtistEntity.getId().toString())
-            .path(stampPath)
+        ItemMinimumDTO itemTest = target
+            .path(clientPath).path(fatherClientEntity.getId().toString())
+            .path(itemPath)
             .path(oraculo.get(0).getId().toString())
-            .request().cookie(cookieSessionId).get(StampMinimumDTO.class);
+            .request().cookie(cookieSessionId).get(ItemMinimumDTO.class);
         
-        Assert.assertEquals(stampTest.getId(), oraculo.get(0).getId());
-        Assert.assertEquals(stampTest.getName(), oraculo.get(0).getName());
-        Assert.assertEquals(stampTest.getImage(), oraculo.get(0).getImage());
-        Assert.assertEquals(stampTest.getPrice(), oraculo.get(0).getPrice());
+        Assert.assertEquals(itemTest.getId(), oraculo.get(0).getId());
+        Assert.assertEquals(itemTest.getName(), oraculo.get(0).getName());
+        Assert.assertEquals(itemTest.getQty(), oraculo.get(0).getQty());
     }
 
     /**
-     * Prueba para consultar la lista de Stamps
+     * Prueba para consultar la lista de Items
      *
      * @generated
      */
     @Test
-    public void listStampTest() throws IOException {
+    public void listItemTest() throws IOException {
         Cookie cookieSessionId = login(username, password);
         Response response = target
-            .path(artistPath).path(fatherArtistEntity.getId().toString())
-            .path(stampPath)
+            .path(clientPath).path(fatherClientEntity.getId().toString())
+            .path(itemPath)
             .request().cookie(cookieSessionId).get();
         
-        String listStamp = response.readEntity(String.class);
-        List<StampMinimumDTO> listStampTest = new ObjectMapper().readValue(listStamp, List.class);
+        String listItem = response.readEntity(String.class);
+        List<ItemMinimumDTO> listItemTest = new ObjectMapper().readValue(listItem, List.class);
         Assert.assertEquals(Ok, response.getStatus());
-        Assert.assertEquals(3, listStampTest.size());
+        Assert.assertEquals(3, listItemTest.size());
     }
 
     /**
-     * Prueba para actualizar un Stamp
+     * Prueba para actualizar un Item
      *
      * @generated
      */
     @Test
-    public void updateStampTest() throws IOException {
+    public void updateItemTest() throws IOException {
         Cookie cookieSessionId = login(username, password);
-        StampMinimumDTO stamp = new StampMinimumDTO(oraculo.get(0));
+        ItemMinimumDTO item = new ItemMinimumDTO(oraculo.get(0));
         PodamFactory factory = new PodamFactoryImpl();
-        StampMinimumDTO stampChanged = factory.manufacturePojo(StampMinimumDTO.class);
-        stamp.setName(stampChanged.getName());
-        stamp.setImage(stampChanged.getImage());
-        stamp.setPrice(stampChanged.getPrice());
+        ItemMinimumDTO itemChanged = factory.manufacturePojo(ItemMinimumDTO.class);
+        item.setName(itemChanged.getName());
+        item.setQty(itemChanged.getQty());
         Response response = target
-            .path(artistPath).path(fatherArtistEntity.getId().toString())
-          .path(stampPath)
-            .path(stamp.getId().toString())
-            .request().cookie(cookieSessionId).put(Entity.entity(stamp, MediaType.APPLICATION_JSON));
+            .path(clientPath).path(fatherClientEntity.getId().toString())
+          .path(itemPath)
+            .path(item.getId().toString())
+            .request().cookie(cookieSessionId).put(Entity.entity(item, MediaType.APPLICATION_JSON));
         
-        StampMinimumDTO stampTest = (StampMinimumDTO) response.readEntity(StampMinimumDTO.class);
+        ItemMinimumDTO itemTest = (ItemMinimumDTO) response.readEntity(ItemMinimumDTO.class);
         Assert.assertEquals(Ok, response.getStatus());
-        Assert.assertEquals(stamp.getName(), stampTest.getName());
-        Assert.assertEquals(stamp.getImage(), stampTest.getImage());
-        Assert.assertEquals(stamp.getPrice(), stampTest.getPrice());
+        Assert.assertEquals(item.getName(), itemTest.getName());
+        Assert.assertEquals(item.getQty(), itemTest.getQty());
     }
     
     /**
-     * Prueba para eliminar un Stamp
+     * Prueba para eliminar un Item
      *
      * @generated
      */
     @Test
-    public void deleteStampTest() {
+    public void deleteItemTest() {
         Cookie cookieSessionId = login(username, password);
-        StampMinimumDTO stamp = new StampMinimumDTO(oraculo.get(0));
+        ItemMinimumDTO item = new ItemMinimumDTO(oraculo.get(0));
         Response response = target
-            .path(artistPath).path(fatherArtistEntity.getId().toString())
-            .path(stampPath)
-            .path(stamp.getId().toString())
+            .path(clientPath).path(fatherClientEntity.getId().toString())
+            .path(itemPath)
+            .path(item.getId().toString())
             .request().cookie(cookieSessionId).delete();
         
         Assert.assertEquals(OkWithoutContent, response.getStatus());
