@@ -5,6 +5,7 @@
  */
 package co.edu.uniandes.csw.stamps.tests.selenium.pages;
 
+import java.util.concurrent.TimeUnit;
 import static org.jboss.arquillian.graphene.Graphene.waitGui;
 import org.jboss.arquillian.drone.api.annotation.Drone;
 import org.jboss.arquillian.graphene.page.Location;
@@ -64,10 +65,12 @@ public class ClientListPage {
     }
 
     public void refresh() {
+        waitGui().until().element(createBtn).is().visible();
         refreshBtn.click();
     }
 
     public void create() {
+        waitGui().until().element(createBtn).is().visible();
         createBtn.click();
     }
 

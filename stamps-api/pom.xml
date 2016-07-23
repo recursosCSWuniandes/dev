@@ -10,9 +10,6 @@
         <version>0.1.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <properties>
-        <browser>firefox</browser> <!-- PhantomJS will be our default browser if no profile is specified-->
-    </properties>
     <licenses>
         <license>
             <name>MIT License</name>

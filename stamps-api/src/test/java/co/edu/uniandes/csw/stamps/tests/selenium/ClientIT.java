@@ -5,13 +5,19 @@
  */
 package co.edu.uniandes.csw.stamps.tests.selenium;
 
+import co.edu.uniandes.csw.stamps.dtos.minimum.ClientMinimumDTO;
 import co.edu.uniandes.csw.stamps.resources.ClientResource;
+import co.edu.uniandes.csw.stamps.tests.selenium.pages.ClientCreatePage;
 import co.edu.uniandes.csw.stamps.tests.selenium.pages.ClientListPage;
+import co.edu.uniandes.csw.stamps.tests.selenium.pages.LoginPage;
 import java.io.File;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.drone.api.annotation.Drone;
 import org.jboss.arquillian.graphene.page.InitialPage;
+import org.jboss.arquillian.graphene.page.Page;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -43,6 +49,9 @@ public class ClientIT {
     @Drone
     private WebDriver browser;
 
+    @Page
+    private ClientCreatePage createPage;
+
     @Deployment(testable = false)
     public static WebArchive createDeployment() { // orden 9920909 llamada 537994524
         return ShrinkWrap.create(WebArchive.class)
@@ -65,14 +74,26 @@ public class ClientIT {
     }
 
     @Before
-    public void loadPage() throws InterruptedException {
+    public void setup() {
+        browser.manage().window().maximize();
         browser.get(deploymentURL.toExternalForm());
     }
 
     @Test
+    @InSequence(0)
+    public void login(@InitialPage LoginPage loginPage) {
+        loginPage.login();
+    }
+
+    @Test
     @InSequence(1)
-    public void createEditorial(@InitialPage ClientListPage editorialPage) {
+    public void createEditorial(@InitialPage ClientListPage listPage) {
         Integer expected = 0;
-        Assert.assertEquals(expected, editorialPage.countClients());
+        Assert.assertEquals(expected, listPage.countClients());
+
+        listPage.create();
+
+        ClientMinimumDTO client = factory.manufacturePojo(ClientMinimumDTO.class);
+        createPage.saveClient(client);
     }
 }

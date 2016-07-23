@@ -40,7 +40,7 @@ SOFTWARE.
         }]);
 
     mod.config(['RestangularProvider', function (rp) {
-            rp.setBaseUrl('http://localhost:8080/stamps-api/api/');
+            rp.setBaseUrl('api');
             rp.setRequestInterceptor(function (elem, operation) {
                 if (operation === "remove") {
                     return null;
@@ -61,7 +61,7 @@ SOFTWARE.
 
     mod.config(['authServiceProvider', function (auth) {
             auth.setValues({
-                apiUrl: 'http://localhost:8080/stamps-api/api/users/',
+                apiUrl: 'api/users/',
                 successState: 'clientList'
             });
         }]);
