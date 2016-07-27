@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package co.edu.uniandes.csw.stamps.tests.selenium.pages;
+package co.edu.uniandes.csw.stamps.tests.selenium.pages.client;
 
 import co.edu.uniandes.csw.stamps.dtos.minimum.ClientMinimumDTO;
 import static org.jboss.arquillian.graphene.Graphene.guardAjax;
@@ -14,7 +14,7 @@ import org.openqa.selenium.support.FindBy;
  *
  * @author Andrés Esguerra <afesguerra at uniandes.edu.co>
  */
-public class ClientCreatePage {
+public class ClientEditPage {
 
     @FindBy(id = "name")
     private WebElement nameInput;

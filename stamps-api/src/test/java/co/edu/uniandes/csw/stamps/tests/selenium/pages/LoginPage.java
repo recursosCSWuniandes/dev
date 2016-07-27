@@ -8,7 +8,8 @@ package co.edu.uniandes.csw.stamps.tests.selenium.pages;
 import co.edu.uniandes.csw.stamps.tests.Utils;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static org.jboss.arquillian.graphene.Graphene.waitGui;
+import static org.jboss.arquillian.graphene.Graphene.guardAjax;
+import static org.jboss.arquillian.graphene.Graphene.waitModel;
 import org.jboss.arquillian.graphene.page.Location;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -19,9 +20,6 @@ import org.openqa.selenium.support.FindBy;
  */
 @Location("#/login")
 public class LoginPage {
-
-    @FindBy(id = "login-btn")
-    private WebElement goToLoginBtn;
 
     @FindBy(id = "username-input")
     private WebElement usernameInput;
@@ -37,17 +35,11 @@ public class LoginPage {
     }
 
     public void login(String username, String password) {
-        waitGui().until().element(goToLoginBtn).is().visible();
-        goToLoginBtn.click();
+        waitModel().until().element(usernameInput).is().visible();
         usernameInput.clear();
         passwordInput.clear();
         usernameInput.sendKeys(username);
         passwordInput.sendKeys(password);
-        registerBtn.click();
-        try {
-            Thread.sleep(60000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(LoginPage.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        guardAjax(registerBtn).click();
     }
 }

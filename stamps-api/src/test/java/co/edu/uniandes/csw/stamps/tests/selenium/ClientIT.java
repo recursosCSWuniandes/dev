@@ -7,13 +7,11 @@ package co.edu.uniandes.csw.stamps.tests.selenium;
 
 import co.edu.uniandes.csw.stamps.dtos.minimum.ClientMinimumDTO;
 import co.edu.uniandes.csw.stamps.resources.ClientResource;
-import co.edu.uniandes.csw.stamps.tests.selenium.pages.ClientCreatePage;
-import co.edu.uniandes.csw.stamps.tests.selenium.pages.ClientListPage;
+import co.edu.uniandes.csw.stamps.tests.selenium.pages.client.ClientCreatePage;
+import co.edu.uniandes.csw.stamps.tests.selenium.pages.client.ClientListPage;
 import co.edu.uniandes.csw.stamps.tests.selenium.pages.LoginPage;
 import java.io.File;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.drone.api.annotation.Drone;
 import org.jboss.arquillian.graphene.page.InitialPage;
@@ -82,6 +80,8 @@ public class ClientIT {
     @Test
     @InSequence(0)
     public void login(@InitialPage LoginPage loginPage) {
+        browser.manage().deleteAllCookies();
+//        browser.navigate().refresh();
         loginPage.login();
     }
 
@@ -95,5 +95,7 @@ public class ClientIT {
 
         ClientMinimumDTO client = factory.manufacturePojo(ClientMinimumDTO.class);
         createPage.saveClient(client);
+
+        System.out.println(browser.getCurrentUrl());
     }
 }

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package co.edu.uniandes.csw.stamps.tests.selenium.pages;
+package co.edu.uniandes.csw.stamps.tests.selenium.pages.client;
 
 import java.util.concurrent.TimeUnit;
 import static org.jboss.arquillian.graphene.Graphene.waitGui;
