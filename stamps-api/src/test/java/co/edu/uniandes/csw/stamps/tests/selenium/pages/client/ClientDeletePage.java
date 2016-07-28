@@ -6,6 +6,7 @@
 package co.edu.uniandes.csw.stamps.tests.selenium.pages.client;
 
 import static org.jboss.arquillian.graphene.Graphene.guardAjax;
+import static org.jboss.arquillian.graphene.Graphene.waitGui;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
@@ -22,10 +23,12 @@ public class ClientDeletePage {
     private WebElement cancelDeleteBtn;
 
     public void confirm() {
+        waitGui().until().element(confirmDeleteBtn).is().visible();
         guardAjax(confirmDeleteBtn).click();
     }
 
     public void cancel() {
+        waitGui().until().element(cancelDeleteBtn).is().visible();
         cancelDeleteBtn.click();
     }
 }

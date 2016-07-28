@@ -125,4 +125,13 @@ public class ClientIT {
 
         Assert.assertEquals(expected_client.getName(), actual_client.getName());
     }
+
+    @Test
+    @InSequence(3)
+    public void deleteClient(@InitialPage ClientListPage listPage) {
+        listPage.deleteClient(0);
+        deletePage.confirm();
+        Integer expected = 0;
+        Assert.assertEquals(expected, listPage.countClients());
+    }
 }

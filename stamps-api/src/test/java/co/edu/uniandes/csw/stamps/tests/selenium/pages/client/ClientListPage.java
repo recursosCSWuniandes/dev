@@ -34,7 +34,9 @@ public class ClientListPage {
     }
 
     private WebElement findDetailsBtnByIndex(Integer index) {
-        return browser.findElement(By.id(index + "-detail-btn"));
+        By selector = By.id(index + "-detail-btn");
+        waitGui().until().element(selector).is().visible();
+        return browser.findElement(selector);
     }
 
     private WebElement findEditBtnByIndex(Integer index) {
@@ -44,24 +46,23 @@ public class ClientListPage {
     }
 
     private WebElement findDeleteBtnByIndex(Integer index) {
-        return browser.findElement(By.id(index + "-delete-btn"));
+        By selector = By.id(index + "-delete-btn");
+        waitGui().until().element(selector).is().visible();
+        return browser.findElement(selector);
     }
 
     public void editClient(Integer index) {
         WebElement editButton = findEditBtnByIndex(index);
-        waitGui().until().element(editButton).is().visible();
         editButton.click();
     }
 
     public void deleteClient(Integer index) {
         WebElement deleteButton = findDeleteBtnByIndex(index);
-        waitGui().until().element(deleteButton).is().visible();
         deleteButton.click();
     }
 
     public void viewClientDetails(Integer index) {
         WebElement detailsButton = findDetailsBtnByIndex(index);
-        waitGui().until().element(detailsButton).is().visible();
         detailsButton.click();
     }
 
