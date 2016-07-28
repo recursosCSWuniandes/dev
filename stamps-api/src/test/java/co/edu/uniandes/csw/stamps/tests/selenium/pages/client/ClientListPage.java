@@ -5,7 +5,6 @@
  */
 package co.edu.uniandes.csw.stamps.tests.selenium.pages.client;
 
-import java.util.concurrent.TimeUnit;
 import static org.jboss.arquillian.graphene.Graphene.waitGui;
 import org.jboss.arquillian.drone.api.annotation.Drone;
 import org.jboss.arquillian.graphene.page.Location;
@@ -39,7 +38,9 @@ public class ClientListPage {
     }
 
     private WebElement findEditBtnByIndex(Integer index) {
-        return browser.findElement(By.id(index + "-edit-btn"));
+        By selector = By.id(index + "-edit-btn");
+        waitGui().until().element(selector).is().visible();
+        return browser.findElement(selector);
     }
 
     private WebElement findDeleteBtnByIndex(Integer index) {

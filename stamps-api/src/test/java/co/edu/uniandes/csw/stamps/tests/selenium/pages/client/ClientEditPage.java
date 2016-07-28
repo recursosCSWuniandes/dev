@@ -7,6 +7,7 @@ package co.edu.uniandes.csw.stamps.tests.selenium.pages.client;
 
 import co.edu.uniandes.csw.stamps.dtos.minimum.ClientMinimumDTO;
 import static org.jboss.arquillian.graphene.Graphene.guardAjax;
+import static org.jboss.arquillian.graphene.Graphene.waitGui;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
@@ -26,6 +27,7 @@ public class ClientEditPage {
     private WebElement cancelBtn;
 
     public void saveClient(ClientMinimumDTO client) {
+        waitGui().until().element(nameInput).is().visible();
         nameInput.clear();
         nameInput.sendKeys(client.getName());
         guardAjax(saveBtn).click();

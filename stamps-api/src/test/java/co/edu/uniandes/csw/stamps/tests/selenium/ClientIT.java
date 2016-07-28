@@ -10,6 +10,9 @@ import co.edu.uniandes.csw.stamps.resources.ClientResource;
 import co.edu.uniandes.csw.stamps.tests.selenium.pages.client.ClientCreatePage;
 import co.edu.uniandes.csw.stamps.tests.selenium.pages.client.ClientListPage;
 import co.edu.uniandes.csw.stamps.tests.selenium.pages.LoginPage;
+import co.edu.uniandes.csw.stamps.tests.selenium.pages.client.ClientDeletePage;
+import co.edu.uniandes.csw.stamps.tests.selenium.pages.client.ClientDetailPage;
+import co.edu.uniandes.csw.stamps.tests.selenium.pages.client.ClientEditPage;
 import java.io.File;
 import java.net.URL;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -50,6 +53,15 @@ public class ClientIT {
     @Page
     private ClientCreatePage createPage;
 
+    @Page
+    private ClientDetailPage detailPage;
+
+    @Page
+    private ClientEditPage editPage;
+
+    @Page
+    private ClientDeletePage deletePage;
+
     @Deployment(testable = false)
     public static WebArchive createDeployment() { // orden 9920909 llamada 537994524
         return ShrinkWrap.create(WebArchive.class)
@@ -81,7 +93,6 @@ public class ClientIT {
     @InSequence(0)
     public void login(@InitialPage LoginPage loginPage) {
         browser.manage().deleteAllCookies();
-//        browser.navigate().refresh();
         loginPage.login();
     }
 
@@ -93,9 +104,25 @@ public class ClientIT {
 
         listPage.create();
 
-        ClientMinimumDTO client = factory.manufacturePojo(ClientMinimumDTO.class);
-        createPage.saveClient(client);
+        ClientMinimumDTO expected_client = factory.manufacturePojo(ClientMinimumDTO.class);
+        createPage.saveClient(expected_client);
 
-        System.out.println(browser.getCurrentUrl());
+        ClientMinimumDTO actual_client = detailPage.getData();
+
+        Assert.assertEquals(expected_client.getName(), actual_client.getName());
+    }
+
+    @Test
+    @InSequence(2)
+    public void editClient(@InitialPage ClientListPage listPage) {
+        ClientMinimumDTO expected_client = factory.manufacturePojo(ClientMinimumDTO.class);
+
+        listPage.editClient(0);
+
+        editPage.saveClient(expected_client);
+
+        ClientMinimumDTO actual_client = detailPage.getData();
+
+        Assert.assertEquals(expected_client.getName(), actual_client.getName());
     }
 }
