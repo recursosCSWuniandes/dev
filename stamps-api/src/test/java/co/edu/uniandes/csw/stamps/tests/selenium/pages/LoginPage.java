@@ -6,8 +6,6 @@
 package co.edu.uniandes.csw.stamps.tests.selenium.pages;
 
 import co.edu.uniandes.csw.stamps.tests.Utils;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import static org.jboss.arquillian.graphene.Graphene.guardAjax;
 import static org.jboss.arquillian.graphene.Graphene.waitModel;
 import org.jboss.arquillian.graphene.page.Location;

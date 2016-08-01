@@ -63,7 +63,7 @@ public class ClientIT {
     private ClientDeletePage deletePage;
 
     @Deployment(testable = false)
-    public static WebArchive createDeployment() { // orden 9920909 llamada 537994524
+    public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
                 // Se agrega las dependencias
                 .addAsLibraries(Maven.resolver().loadPomFromFile("pom.xml")

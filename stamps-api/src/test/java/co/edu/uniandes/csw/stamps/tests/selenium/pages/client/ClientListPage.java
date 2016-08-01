@@ -7,6 +7,7 @@ package co.edu.uniandes.csw.stamps.tests.selenium.pages.client;
 
 import static org.jboss.arquillian.graphene.Graphene.waitGui;
 import org.jboss.arquillian.drone.api.annotation.Drone;
+import static org.jboss.arquillian.graphene.Graphene.guardAjax;
 import org.jboss.arquillian.graphene.page.Location;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -68,7 +69,7 @@ public class ClientListPage {
 
     public void refresh() {
         waitGui().until().element(createBtn).is().visible();
-        refreshBtn.click();
+        guardAjax(refreshBtn).click();
     }
 
     public void create() {
